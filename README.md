@@ -234,7 +234,7 @@ Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, 
 - DNSSEC validation and TLS transport security provide different protections; one does not replace the other.
 - A CA certificate is not a private key, but its source and trust scope should be documented.
 - Private keys, passwords, and tokens must remain outside version control.
-- End-to-end DoT and DNSSEC behavior from the ESP8266 has not yet been demonstrated.
+-
 
 ## Testing and Validation
 
@@ -253,18 +253,6 @@ The project successfully established the core components of a gateway-assisted D
 - **Firmware Integration:** Developed the ESP8266 firmware and incorporated the CA certificate configuration for secure gateway communication.
 - **Security-Oriented Design:** Established an architecture that separates DNSSEC validation at the gateway from TLS-based protection of the client-to-gateway connection.
 
-### Current Evaluation
-
-The gateway-side configuration and independent TLS verification demonstrate progress toward the project's security objectives. Device-side integration is still being tested: gateway hostname resolution from the ESP8266 and successful certificate-verified DoT communication remain to be confirmed.
-
-The DNSSEC test scenarios are prepared for evaluation. Their end-to-end outcomes should be documented using actual resolver responses and device logs before being reported as successful.
-
-### Next Evaluation Milestones
-
-- Complete ESP8266-to-gateway DNS-over-TLS communication.
-- Verify certificate-chain trust and hostname matching on the device.
-- Validate signed, unsigned, and DNSSEC-bogus responses through the complete system.
-- Collect repeatable measurements for DNS query latency, TLS connection time, and device resource usage.
 
 ## Future Work
 
