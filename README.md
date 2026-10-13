@@ -4,6 +4,12 @@
 
 > **Project status: Prototype in progress.** The ESP8266 connects to Wi-Fi, but end-to-end DNS-over-TLS (DoT) with certificate verification has not yet been demonstrated successfully. This README distinguishes configured components from work still in progress.
 
+## Team Introduction Video
+
+**Problem Statement:** PS-004 — Authenticated Gateway-Assisted DNSSEC for IoT Clients
+
+**Video:** [Watch our AIORI-3 team introduction](https://youtu.be/wjA9g5x5s4w?si=8qdF-Wcldh8SVMxA)
+
 ---
 
 ## Table of Contents
