@@ -276,6 +276,11 @@ The DNSSEC test scenarios are prepared for evaluation. Their end-to-end outcomes
 - **PlatformIO configuration:** `platformio.ini`
 - **Project presentation:** `A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf`
 
+## Documentation
+
+- [System Architecture](docs/architecture.md)
+- [Testing and Validation](docs/testing.md)
+
 
 ---
 
