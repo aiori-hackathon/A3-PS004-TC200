@@ -30,11 +30,26 @@ Resource-constrained Internet of Things (IoT) devices, such as the ESP8266, have
 
 The prototype brings together an ESP8266/NodeMCU client, Unbound as a validating recursive resolver, and NSD-hosted test zones. Planned test cases cover valid signed DNS data, unsigned data, and DNSSEC-bogus data.
 
-## Problem Statement
+## Problem Statement: What Are We Solving?
 
-Traditional DNS does not, by itself, authenticate the integrity of DNS responses. DNSSEC provides cryptographic validation of DNS data, but implementing the full validation process directly on a constrained IoT device can be challenging.
+Internet of Things (IoT) devices such as the ESP8266 rely on DNS to translate domain names into IP addresses. Traditional DNS does not inherently verify the authenticity of DNS responses, leaving devices potentially vulnerable to DNS spoofing, cache poisoning, and redirection to malicious destinations.
 
-This project investigates whether a local gateway can perform DNSSEC validation on behalf of an ESP8266 client while DNS-over-TLS (DoT) protects communication between the device and gateway.
+Implementing complete DNSSEC validation directly on resource-constrained IoT devices can also be challenging because of their limited memory and processing capabilities.
+
+Our project addresses this challenge through a **gateway-assisted DNS security architecture**. Instead of requiring the ESP8266 to perform the complete DNSSEC validation process itself, a local gateway uses Unbound to validate DNS responses. DNS-over-TLS (DoT) is used to protect communication between the IoT device and the gateway, with certificate and hostname verification providing authentication of the gateway.
+
+The goal is to explore a practical way to strengthen DNS security for lightweight IoT devices by combining centralized DNSSEC validation with encrypted, authenticated communication.
+
+## What Makes Our Approach Different?
+
+- **Gateway-Assisted DNSSEC:** Offloads DNSSEC validation from a resource-constrained ESP8266 to a dedicated gateway running Unbound.
+- **Encrypted DNS Communication:** Uses DNS-over-TLS on TCP port `853` to protect DNS queries and responses in transit between the device and gateway.
+- **Certificate-Based Gateway Authentication:** Uses a trusted CA certificate and hostname verification to help ensure the device connects to the intended gateway.
+- **Controlled Security Testing:** Uses NSD-hosted test zones representing valid signed, unsigned, and DNSSEC-bogus data to evaluate resolver behavior.
+- **Separation of Security Responsibilities:** Combines DNSSEC validation of DNS data with TLS protection of the communication channel, addressing two distinct security requirements.
+- **IoT-Oriented Design:** Explores a security architecture that reduces the validation burden on a lightweight device while relying on a trusted local gateway.
+
+**Key distinction:** DNSSEC validates DNS data, while DoT protects the connection to the resolver. Our approach combines both at different layers rather than treating encrypted DNS traffic alone as proof that DNS responses are authentic.
 
 ## Objectives
 
@@ -212,14 +227,32 @@ Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, 
 - Private keys, passwords, and tokens must remain outside version control.
 - End-to-end DoT and DNSSEC behavior from the ESP8266 has not yet been demonstrated.
 
-## Limitations
+## Results and Validation
 
-- The design depends on a reachable and correctly configured local gateway.
-- DNS resolution and network routing must work before a hostname-based DoT connection can succeed.
-- Certificate-chain validation and hostname matching must both succeed.
-- Full ESP8266-to-gateway-to-DNSSEC integration remains in progress.
-- The current prototype is not a production-ready IoT security solution.
-- Performance claims should be added only after repeatable measurements have been collected.
+The project successfully established the core components of a gateway-assisted DNS security prototype, combining ESP8266 firmware, DNS infrastructure, DNSSEC test scenarios, and encrypted DNS transport configuration.
+
+### Results Obtained
+
+- **ESP8266 Connectivity:** Successfully established Wi-Fi connectivity between the NodeMCU device and the local network.
+- **DNS Resolver Configuration:** Configured Unbound for recursive DNS resolution and DNSSEC validation; the configuration passed `unbound-checkconf`.
+- **DNSSEC Test Infrastructure:** Prepared NSD-hosted test zones for valid signed, unsigned, and DNSSEC-bogus DNS records.
+- **DNS-over-TLS Configuration:** Configured the gateway's TLS service to support encrypted DNS communication over TCP port `853`.
+- **TLS Verification:** Successfully tested the gateway TLS endpoint independently from WSL using CA trust and hostname verification.
+- **Firmware Integration:** Developed the ESP8266 firmware and incorporated the CA certificate configuration for secure gateway communication.
+- **Security-Oriented Design:** Established an architecture that separates DNSSEC validation at the gateway from TLS-based protection of the client-to-gateway connection.
+
+### Current Evaluation
+
+The gateway-side configuration and independent TLS verification demonstrate progress toward the project's security objectives. Device-side integration is still being tested: gateway hostname resolution from the ESP8266 and successful certificate-verified DoT communication remain to be confirmed.
+
+The DNSSEC test scenarios are prepared for evaluation. Their end-to-end outcomes should be documented using actual resolver responses and device logs before being reported as successful.
+
+### Next Evaluation Milestones
+
+- Complete ESP8266-to-gateway DNS-over-TLS communication.
+- Verify certificate-chain trust and hostname matching on the device.
+- Validate signed, unsigned, and DNSSEC-bogus responses through the complete system.
+- Collect repeatable measurements for DNS query latency, TLS connection time, and device resource usage.
 
 ## Future Work
 
@@ -239,8 +272,7 @@ Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, 
 - **Firmware entry point:** `src/main.cpp`
 - **PlatformIO configuration:** `platformio.ini`
 - **Project presentation:** `A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf`
-- **Team introduction video:** To be added after publication.
+
 
 ---
 
-*This README documents the current state of the prototype. Update the implementation status and test results only when supported by fresh logs or reproducible test evidence.*
