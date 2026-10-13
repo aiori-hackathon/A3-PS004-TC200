@@ -227,6 +227,9 @@ Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, 
 - Private keys, passwords, and tokens must remain outside version control.
 - End-to-end DoT and DNSSEC behavior from the ESP8266 has not yet been demonstrated.
 
+## Testing and Validation
+
+Detailed test procedures, observed results, DNSSEC test scenarios, and validation status are documented in [docs/testing.md](docs/testing.md).
 ## Results and Validation
 
 The project successfully established the core components of a gateway-assisted DNS security prototype, combining ESP8266 firmware, DNS infrastructure, DNSSEC test scenarios, and encrypted DNS transport configuration.
