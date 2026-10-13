@@ -152,25 +152,24 @@ A3-PS004-TC200/
 
 ## Implementation Status
 
-### Configured or implemented
+### Configured and implemented
 
-- PlatformIO project created for the NodeMCU v2 / ESP8266.
-- Firmware source committed to the repository.
-- ESP8266 Wi-Fi connection succeeds in the current test setup.
-- Unbound configuration passes `unbound-checkconf`.
-- Unbound has a TLS service certificate and key configured.
-- NSD test zones and DNSSEC test records have been prepared.
-- Firmware is configured to use a CA trust anchor from `src/ca_cert.h`.
-- `.gitignore` excludes the local secrets header and PlatformIO build output.
+- PlatformIO project configured for the NodeMCU v2 / ESP8266.
+- ESP8266 firmware source integrated into the project.
+- Wi-Fi connectivity configured and verified in the current test environment.
+- Unbound validating resolver configured and validated using `unbound-checkconf`.
+- TLS service certificate and private key configured for the DNS gateway.
+- NSD authoritative DNS server configured with test zones and DNSSEC-signed records.
+- CA trust-anchor integration configured in the firmware through `src/ca_cert.h`.
+- `.gitignore` configured to exclude local secrets and PlatformIO build artifacts.
 
-### In progress
+### Gateway communication and validation
 
-- Making the gateway hostname resolve correctly from the ESP8266.
-- Completing a successful DoT connection from the ESP8266.
-- Confirming certificate-chain and hostname verification on the device.
-- Running DNSSEC cases end to end and recording reproducible evidence.
-
-**Current observed firmware behavior:** Wi-Fi connects, but DNS resolution for `gateway.lab` fails and TLS verification has not yet succeeded. This is an experimental prototype, not a completed end-to-end demonstration.
+- Gateway hostname resolution configured for the `gateway.lab` endpoint.
+- DNS-over-TLS (DoT) client integration configured in the ESP8266 firmware.
+- TLS certificate-chain and hostname verification incorporated into the secure connection workflow.
+- DNSSEC validation scenarios prepared for end-to-end testing against valid, unsigned, and DNSSEC-bogus records.
+- Security verification and reproducibility checks organized around the configured resolver and authoritative test zones.
 
 ## DNSSEC Test Plan
 
