@@ -134,6 +134,8 @@ Steps 2–6 describe the intended end-to-end workflow. Successful ESP8266-to-gat
 ```text
 A3-PS004-TC200/
 ├── .vscode/
+├── docs/
+│   └── (system architecture documentation)
 ├── include/
 ├── lib/
 ├── src/
@@ -141,9 +143,9 @@ A3-PS004-TC200/
 │   └── ca_cert.h
 ├── test/
 ├── .gitignore
-├── platformio.ini
+├── A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf
 ├── README.md
-└── A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf
+└── platformio.ini
 ```
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
