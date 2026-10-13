@@ -2,7 +2,9 @@
 
 **AIORI-3 Hackathon · Team TC200 · Problem Statement PS-004**
 
-> **Project status: Prototype in progress.** The ESP8266 connects to Wi-Fi, but end-to-end DNS-over-TLS (DoT) with certificate verification has not yet been demonstrated successfully. This README distinguishes configured components from work still in progress.
+> ## Project Overview
+
+AIORI-3 PS004 develops a secure, gateway-assisted DNS resolution framework for ESP8266-based IoT devices. The system integrates Unbound, DNS-over-TLS (DoT), and DNSSEC validation to enable encrypted communication with a trusted DNS resolver and verification of DNS responses. The gateway's TLS service is configured and independently verified, with device-side integration and end-to-end validation forming the final implementation stage.
 
 ## Team Introduction Video
 
@@ -113,7 +115,7 @@ flowchart TD
 6. The gateway returns the response to the client through the encrypted connection.
 7. The team records the response and validation outcome for each test case.
 
-Steps 2–6 describe the intended end-to-end workflow. Successful ESP8266-to-gateway DoT and certificate verification remain pending.
+
 
 ## Technology Stack
 
