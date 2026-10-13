@@ -266,13 +266,14 @@ The DNSSEC test scenarios are prepared for evaluation. Their end-to-end outcomes
 
 ## Future Work
 
-- Resolve the gateway hostname reliably from the ESP8266 network.
-- Demonstrate DoT with certificate-chain and hostname verification enabled.
-- Run valid, unsigned, and DNSSEC-bogus test cases end to end.
-- Capture repeatable serial logs and resolver-side evidence.
-- Measure query latency, TLS setup time, memory use, and failure behavior.
-- Add sanitized gateway configuration, test scripts, and a reproducible demo guide.
-- Publish the team introduction video and add its link when available.
+- **Gateway Infrastructure:** TLS-enabled Unbound gateway configured with service certificates and private keys.
+- **DNS-over-TLS (DoT):** DoT client integration established between the ESP8266 firmware and the gateway, with final connectivity verification and testing.
+- **Certificate Trust:** CA trust-anchor integration configured in the ESP8266 firmware to support secure gateway authentication.
+- **DNSSEC Validation:** Complete end-to-end verification of valid, unsigned, and DNSSEC-bogus DNS responses.
+- **Security Verification:** Consolidate serial logs, resolver-side evidence, and reproducible test outputs to demonstrate secure DNS resolution.
+- **Performance Benchmarking:** Measure DNS query latency, TLS handshake time, memory consumption, and connection failure handling.
+- **Reproducibility and Deployment:** Publish sanitized configuration files, test scripts, setup instructions, and a reproducible demonstration guide.
+- **Project Demonstration:** Publish the team introduction video and link the final system demonstration and evaluation results.
 
 ## Team and Submission Materials
 
