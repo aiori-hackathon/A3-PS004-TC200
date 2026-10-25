@@ -152,7 +152,56 @@ A3-PS004-TC200/
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
 
-## Implementation Status
+
+
+## Current Implementation Status
+
+| Component | Observed status | Evidence |
+|---|---|---|
+| ESP8266 Wi-Fi | Verified | Device connects to the local network |
+| Gateway TCP reachability | Verified | ESP8266 can reach the gateway endpoint |
+| Unbound configuration | Verified | `unbound-checkconf` reports no errors |
+| DNSSEC — valid signed zone | Verified locally | Resolver returns a validated answer with the AD flag |
+| DNSSEC — unsigned zone | Verified locally | Resolution succeeds without DNSSEC authentication |
+| DNSSEC — bogus zone | Verified locally | Resolver returns `SERVFAIL` with DNSSEC validation failure |
+| Gateway TLS endpoint | Verified independently | OpenSSL confirms TLS 1.3, certificate-chain validation and hostname verification |
+| ESP8266-to-gateway TLS | In progress | BearSSL receives a fatal `protocol_version` alert |
+| Gateway hostname resolution on ESP8266 | In progress | `gateway.lab` does not currently resolve through the device's configured DNS server |
+| Complete end-to-end DoT query from ESP8266 | Pending | Requires successful TLS integration and DNS query/response handling |
+
+### Verified DNSSEC Behaviour
+
+The local resolver testbed uses controlled authoritative zones to exercise three security outcomes:
+
+- **Secure:** valid DNSSEC signatures are accepted.
+- **Insecure:** unsigned data can resolve, but must not be represented as DNSSEC-authenticated.
+- **Bogus:** invalid DNSSEC signatures result in validation failure rather than being silently accepted.
+
+These results have been observed at the resolver level. They must not be presented as successful ESP8266 end-to-end tests until the complete device-to-gateway workflow is verified.
+
+### TLS Integration and Debugging
+
+The gateway's DNS-over-TLS listener is configured on TCP port `853`. Independent OpenSSL tests successfully negotiate TLS 1.3 and validate the gateway certificate against the project's CA trust anchor and the hostname `gateway.lab`.
+
+During hardware integration, the ESP8266 establishes network connectivity and can reach the gateway's TCP endpoint, but its BearSSL client currently receives a TLS `protocol_version` alert. A separate issue prevents the device from resolving `gateway.lab` through its configured DNS server.
+
+The current investigation therefore separates three independent checks:
+
+1. Network reachability between the ESP8266 and gateway.
+2. TLS protocol compatibility and certificate/hostname verification.
+3. DNS query delivery and DNSSEC validation through the gateway.
+
+Certificate verification is not disabled to work around the handshake failure. End-to-end DNS-over-TLS remains in progress until the ESP8266 completes the handshake and successfully sends and receives DNS messages.
+
+### Next Milestones
+
+- [ ] Resolve the TLS protocol compatibility issue without weakening certificate verification.
+- [ ] Configure reliable gateway-hostname resolution for the ESP8266.
+- [ ] Send a real DNS query over the established TLS connection.
+- [ ] Verify secure, insecure and bogus DNSSEC cases from the device.
+- [ ] Record serial logs and resolver evidence for reproducible tests.
+- [ ] Measure DNS latency, TLS handshake time, memory consumption and failure handling.
+- [ ] Document limitations and the trust boundary between the IoT client and validating gateway.
 
 ### Configured and implemented
 
