@@ -287,20 +287,55 @@ Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, 
 
 ## Testing and Validation
 
-Detailed test procedures, observed results, DNSSEC test scenarios, and validation status are documented in [docs/testing.md](docs/testing.md).
 ## Results and Validation
 
-The project successfully established the core components of a gateway-assisted DNS security prototype, combining ESP8266 firmware, DNS infrastructure, DNSSEC test scenarios, and encrypted DNS transport configuration.
+### 1. DNSSEC Resolver Tests — Passed Locally
 
-### Results Obtained
+The Unbound resolver was tested against three controlled DNSSEC scenarios.
 
-- **ESP8266 Connectivity:** Successfully established Wi-Fi connectivity between the NodeMCU device and the local network.
-- **DNS Resolver Configuration:** Configured Unbound for recursive DNS resolution and DNSSEC validation; the configuration passed `unbound-checkconf`.
-- **DNSSEC Test Infrastructure:** Prepared NSD-hosted test zones for valid signed, unsigned, and DNSSEC-bogus DNS records.
-- **DNS-over-TLS Configuration:** Configured the gateway's TLS service to support encrypted DNS communication over TCP port `853`.
-- **TLS Verification:** Successfully tested the gateway TLS endpoint independently from WSL using CA trust and hostname verification.
-- **Firmware Integration:** Developed the ESP8266 firmware and incorporated the CA certificate configuration for secure gateway communication.
-- **Security-Oriented Design:** Established an architecture that separates DNSSEC validation at the gateway from TLS-based protection of the client-to-gateway connection.
+| Test case | Observed result | Status |
+|---|---|---|
+| Valid signed zone (`www.secure.lab.test`) | `NOERROR`, `AD` flag present | PASS |
+| Unsigned zone (`www.insecure.lab.test`) | `NOERROR`, no `AD` flag | PASS |
+| DNSSEC-bogus zone (`www.bogus.lab.test`) | `SERVFAIL`, DNSSEC validation failure | PASS |
+
+These results demonstrate the resolver's expected handling of valid, unsigned, and DNSSEC-bogus data. They were verified locally at the resolver level; they are not yet ESP8266 end-to-end results.
+
+### 2. Gateway TLS Tests — Passed Independently
+
+The gateway's DNS-over-TLS endpoint listens on TCP port `853`.
+
+- TLS 1.3 handshake: successful.
+- Certificate-chain verification using the project CA: successful.
+- Hostname verification for `gateway.lab`: successful.
+- TLS 1.2 handshake: rejected by the current gateway with a `protocol_version` alert.
+
+The TLS 1.3 verification was performed independently using OpenSSL from the WSL environment.
+
+### 3. ESP8266 Integration — In Progress
+
+| Check | Observed result |
+|---|---|
+| Wi-Fi connectivity | PASS |
+| TCP reachability to gateway | PASS |
+| TLS handshake using ESP8266 BearSSL | FAIL — protocol-version alert |
+| Resolution of `gateway.lab` on the device | FAIL — investigation ongoing |
+| Complete DNS query over DoT from ESP8266 | PENDING |
+
+The current integration issues are being investigated separately: TLS protocol compatibility and gateway-hostname resolution. Certificate verification remains enabled; it will not be disabled as a workaround.
+
+### 4. Performance Evaluation
+
+Performance benchmarking has not yet been completed. Planned measurements include DNS query latency, TLS handshake duration, device memory usage, and end-to-end query success rate.
+
+## Current Limitations
+
+- The ESP8266 has not yet completed a successful TLS handshake with the gateway.
+- Gateway hostname resolution from the device remains unresolved.
+- DNSSEC outcomes have been verified at the resolver level, not through a completed ESP8266-to-gateway DoT transaction.
+- End-to-end performance measurements remain pending.
+
+Detailed test procedures, observed results, DNSSEC test scenarios, and validation status are documented in [docs/testing.md](docs/testing.md).
 
 
 ## Future Work
