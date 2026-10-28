@@ -139,19 +139,49 @@ flowchart TD
 
 ```text
 A3-PS004-TC200/
-├── .vscode/
-├── docs/
-│   └── (system architecture documentation)
-├── include/
-├── lib/
+├── DNSGuard/
+│   ├── backend/
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   └── server.js
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── App-backup.jsx
+│   │   ├── main.jsx
+│   │   └── styles.css
+│   ├── index.html
+│   ├── package.json
+│   └── README.md
+├── firmware/
+│   ├── include/
+│   │   ├── ca_cert.h
+│   │   ├── secrets.example.h
+│   │   └── README
+│   ├── src/
+│   │   └── main.cpp
+│   ├── test/
+│   ├── lib/
+│   ├── platformio.ini
+│   └── ca.crt
 ├── src/
-│   ├── main.cpp
-│   └── ca_cert.h
-├── test/
+│   └── main.cpp
 ├── .gitignore
-├── A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf
-├── README.md
-└── platformio.ini
+└── README.md
+```
+
+### Directory Overview
+
+- **`DNSGuard/`** — Contains the web dashboard, frontend source code, styling, and backend server.
+- **`DNSGuard/src/`** — Holds the dashboard's React application and CSS styles.
+- **`DNSGuard/backend/`** — Contains the backend server and Node.js dependency manifests.
+- **`firmware/`** — Contains the ESP8266 firmware project, PlatformIO configuration, TLS certificate material, and supporting files.
+- **`firmware/src/`** — Contains the firmware entry point for the ESP8266 client.
+- **`firmware/include/`** — Stores certificate-related headers and the example configuration template. Actual local credentials are excluded from version control.
+- **`src/`** — Contains the repository's existing root-level source code.
+- **`.gitignore`** — Defines files and generated artefacts that should not be tracked by Git.
+- **`README.md`** — Documents the project, its architecture, setup, and testing.
+
+
 ```
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
