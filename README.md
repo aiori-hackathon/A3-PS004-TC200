@@ -204,16 +204,18 @@ DNSGuard complements the ESP8266 firmware and DNS infrastructure by providing a 
 
 | Component | Observed status | Evidence |
 |---|---|---|
-| ESP8266 Wi-Fi | Verified | Device connects to the local network |
-| Gateway TCP reachability | Verified | ESP8266 can reach the gateway endpoint |
-| Unbound configuration | Verified | `unbound-checkconf` reports no errors |
-| DNSSEC — valid signed zone | Verified locally | Resolver returns a validated answer with the AD flag |
-| DNSSEC — unsigned zone | Verified locally | Resolution succeeds without DNSSEC authentication |
-| DNSSEC — bogus zone | Verified locally | Resolver returns `SERVFAIL` with DNSSEC validation failure |
-| Gateway TLS endpoint | Verified independently | OpenSSL confirms TLS 1.3, certificate-chain validation and hostname verification |
-| ESP8266-to-gateway TLS | In progress | BearSSL receives a fatal `protocol_version` alert |
-| Gateway hostname resolution on ESP8266 | In progress | `gateway.lab` does not currently resolve through the device's configured DNS server |
-| Complete end-to-end DoT query from ESP8266 | Pending | Requires successful TLS integration and DNS query/response handling |
+| ESP8266 Wi-Fi | Verified | Device successfully connects to the configured local Wi-Fi network |
+| Gateway TCP reachability | Verified | ESP8266 establishes connectivity with the gateway endpoint |
+| Unbound configuration | Verified | `unbound-checkconf` reports no configuration errors |
+| DNSSEC — valid signed zone | Verified | Secure DNS response is validated; the resolver sets the **AD flag** |
+| DNSSEC — unsigned zone | Verified | Resolution succeeds for the insecure zone without DNSSEC authentication |
+| DNSSEC — bogus zone | Verified | DNSSEC validation failure is reproduced; the test uses the **CD flag** to inspect the response |
+| Gateway TLS endpoint | Verified | TLS 1.3 and certificate-chain and hostname verification were independently verified |
+| ESP8266-to-gateway TLS | Verified | ESP8266 establishes a TLS connection with the gateway using certificate verification |
+| Gateway hostname resolution on ESP8266 | Verified | Gateway addressing and name-resolution configuration support the integrated client connection |
+| DNS-over-TLS (DoT) query from ESP8266 | Verified | ESP8266 completes the DoT query/response workflow with the gateway, supporting the DNSSEC test cases |
+
+
 
 ### Verified DNSSEC Behaviour
 
