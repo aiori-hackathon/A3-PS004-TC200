@@ -156,7 +156,19 @@ A3-PS004-TC200/
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
 
+## DNSGuard Dashboard
 
+DNSGuard is a web-based monitoring and visualisation interface developed for the gateway-assisted DNSSEC validation system. It provides a central view of the DNS security workflow, helping users understand DNS query outcomes and the validation status of responses processed by the gateway.
+
+### Key Features
+
+- **DNS Security Monitoring:** Presents DNS-related information to help monitor the system's operation and security status.
+- **DNSSEC Validation Visibility:** Supports the demonstration of secure, bogus, and insecure DNS responses, corresponding to the project's three test zones.
+- **Gateway–IoT Architecture:** Forms the dashboard layer of a system that uses an ESP8266 IoT client to communicate securely with the gateway over DNS-over-TLS (DoT).
+- **Dedicated Backend:** Includes a backend component to support communication and application functionality.
+- **Integrated Project Structure:** Organises the dashboard, backend, and ESP8266 firmware within the same project repository.
+
+DNSGuard complements the ESP8266 firmware and DNS infrastructure by providing a user-facing interface for understanding the system's DNS security operations.
 
 ## Current Implementation Status
 
