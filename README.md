@@ -18,6 +18,12 @@ By combining resolver-side DNSSEC testing, secure IoT-to-gateway communication, 
 
  **Core Implementation Tested** — Successfully tested DNSSEC validation across three DNS zones: secure (AD flag), bogus (CD flag), and insecure. DNS-over-TLS (DoT) connectivity and TLS certificate verification were implemented and tested on the ESP8266 IoT client.
 
+DNSGuard
+
+Live Demo: https://dns-guard-pink.vercel.app/
+
+DNSGuard is a DNSSEC monitoring and testing dashboard that connects to a live Unbound resolver for DNS security validation.
+
 ## Team Introduction Video
 
 **Problem Statement:** PS-004 — Authenticated Gateway-Assisted DNSSEC for IoT Clients
@@ -388,6 +394,8 @@ The `+cdflag` option sets the Checking Disabled (CD) bit. This permits diagnosti
 - These resolver-side tests establish the DNSSEC test cases used to evaluate the gateway-assisted IoT architecture.
 
 ## DNSGuard Dashboard
+
+Live Demo: https://dns-guard-pink.vercel.app/
 
 DNSGuard is the web-based dashboard developed for the gateway-assisted DNSSEC validation system. It provides a user-facing interface for understanding the DNS security workflow alongside the Ubuntu-based DNS infrastructure and ESP8266 IoT client.
 
