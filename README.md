@@ -2,9 +2,17 @@
 
 **AIORI-3 Hackathon · Team TC200 · Problem Statement PS-004**
 
-> ## Project Overview
+>## Project Overview
 
-AIORI-3 PS004 develops a secure, gateway-assisted DNS resolution framework for ESP8266-based IoT devices. The system integrates Unbound, DNS-over-TLS (DoT), and DNSSEC validation to enable encrypted communication with a trusted DNS resolver and verification of DNS responses. The gateway's TLS service is configured and independently verified, with device-side integration and end-to-end validation forming the final implementation stage.
+**IoT DNSSEC** is a gateway-assisted secure DNS resolution framework developed as part of AIORI-3 PS004. The project aims to improve DNS security for ESP8266-based IoT devices by combining DNS-over-TLS (DoT), DNSSEC validation, and a dedicated web-based monitoring dashboard.
+
+The system integrates an **Ubuntu WSL2 DNS testbed** using Unbound as the validating recursive resolver and NSD as the authoritative DNS server. Three controlled DNS zones—secure, insecure, and bogus—are used to evaluate DNSSEC behaviour, including authenticated responses, unsigned records, and validation failures.
+
+The **ESP8266 firmware**, developed using PlatformIO and C++, connects to the configured gateway over a secure TLS channel, with certificate verification, and implements the DNS-over-TLS query workflow. The accompanying **DNSGuard dashboard**, built with React and a Node.js backend, provides a web-based interface for observing and demonstrating the system's DNS security workflow.
+
+By combining resolver-side DNSSEC testing, secure IoT-to-gateway communication, and a dedicated dashboard, IoT DNSSEC brings together the core components required to demonstrate gateway-assisted DNS security for resource-constrained IoT devices.
+
+
 
 ## Project Status
 
