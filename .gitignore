@@ -13,3 +13,11 @@ psk.hex
 .venv/
 __pycache__/
 *.pyc
+# PlatformIO generated files
+.pio/
+
+# Local credentials and private keys
+secrets.h
+*.key
+*.pem
+.env*
