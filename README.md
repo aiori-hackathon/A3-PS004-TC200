@@ -20,6 +20,8 @@ AIORI-3 PS004 develops a secure, gateway-assisted DNS resolution framework for E
 
 ## Table of Contents
 
+-## Table of Contents
+
 - [Overview](#overview)
 - [Problem Statement](#problem-statement)
 - [Objectives](#objectives)
@@ -27,14 +29,19 @@ AIORI-3 PS004 develops a secure, gateway-assisted DNS resolution framework for E
 - [Workflow](#workflow)
 - [Technology Stack](#technology-stack)
 - [Repository Structure](#repository-structure)
-- [Implementation Status](#implementation-status)
-- [DNSSEC Test Plan](#dnssec-test-plan)
-- [Setup and Build](#setup-and-build)
-- [Gateway Validation](#gateway-validation)
-- [Security Considerations](#security-considerations)
-- [Limitations](#limitations)
+- [Project Status](#project-status)
+- [DNSGuard Dashboard](#dnsguard-dashboard)
+- [Current Implementation Status](#current-implementation-status)
+- [Ubuntu WSL2 DNSSEC Testbed](#ubuntu-wsl2-dnssec-testbed)
+- [Useful Commands](#useful-commands)
+- [DNSSEC Test Results](#dnssec-test-results)
+- [ESP8266 Setup and Testing](#esp8266-setup-and-testing)
+- [Security Considerations and Limitations](#security-considerations-and-limitations)
+- [Troubleshooting](#troubleshooting)
 - [Future Work](#future-work)
 - [Team and Submission Materials](#team-and-submission-materials)
+
+
 
 ## Overview
 
