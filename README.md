@@ -6,6 +6,10 @@
 
 AIORI-3 PS004 develops a secure, gateway-assisted DNS resolution framework for ESP8266-based IoT devices. The system integrates Unbound, DNS-over-TLS (DoT), and DNSSEC validation to enable encrypted communication with a trusted DNS resolver and verification of DNS responses. The gateway's TLS service is configured and independently verified, with device-side integration and end-to-end validation forming the final implementation stage.
 
+## Project Status
+
+ **Core Implementation Tested** — Successfully tested DNSSEC validation across three DNS zones: secure (AD flag), bogus (CD flag), and insecure. DNS-over-TLS (DoT) connectivity and TLS certificate verification were implemented and tested on the ESP8266 IoT client.
+
 ## Team Introduction Video
 
 **Problem Statement:** PS-004 — Authenticated Gateway-Assisted DNSSEC for IoT Clients
