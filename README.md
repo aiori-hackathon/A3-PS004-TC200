@@ -186,20 +186,6 @@ A3-PS004-TC200/
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
 
-## DNSGuard Dashboard
-
-DNSGuard is a web-based monitoring and visualisation interface developed for the gateway-assisted DNSSEC validation system. It provides a central view of the DNS security workflow, helping users understand DNS query outcomes and the validation status of responses processed by the gateway.
-
-### Key Features
-
-- **DNS Security Monitoring:** Presents DNS-related information to help monitor the system's operation and security status.
-- **DNSSEC Validation Visibility:** Supports the demonstration of secure, bogus, and insecure DNS responses, corresponding to the project's three test zones.
-- **Gateway–IoT Architecture:** Forms the dashboard layer of a system that uses an ESP8266 IoT client to communicate securely with the gateway over DNS-over-TLS (DoT).
-- **Dedicated Backend:** Includes a backend component to support communication and application functionality.
-- **Integrated Project Structure:** Organises the dashboard, backend, and ESP8266 firmware within the same project repository.
-
-DNSGuard complements the ESP8266 firmware and DNS infrastructure by providing a user-facing interface for understanding the system's DNS security operations.
-
 ## Current Implementation Status
 
 | Component | Observed status | Evidence |
@@ -215,196 +201,336 @@ DNSGuard complements the ESP8266 firmware and DNS infrastructure by providing a 
 | Gateway hostname resolution on ESP8266 | Verified | Gateway addressing and name-resolution configuration support the integrated client connection |
 | DNS-over-TLS (DoT) query from ESP8266 | Verified | ESP8266 completes the DoT query/response workflow with the gateway, supporting the DNSSEC test cases |
 
+## Ubuntu WSL2 DNSSEC Testbed
 
+The DNS infrastructure was configured and tested in Ubuntu running under Windows Subsystem for Linux 2 (WSL2). The local testbed uses **Unbound** as the validating recursive resolver and **NSD** as the authoritative DNS server for controlled test zones.
 
-### Verified DNSSEC Behaviour
+The testbed was designed to examine three DNSSEC outcomes:
 
-The local resolver testbed uses controlled authoritative zones to exercise three security outcomes:
+- **Secure:** A valid signed DNS response is successfully validated by Unbound. The authenticated response can carry the `AD` (Authenticated Data) flag.
+- **Insecure:** An unsigned DNS zone resolves without DNSSEC authentication.
+- **Bogus:** A DNSSEC validation failure is reproduced using deliberately invalid signed data. The resolver's validation behaviour is examined using normal and checking-disabled queries where appropriate.
 
-- **Secure:** valid DNSSEC signatures are accepted.
-- **Insecure:** unsigned data can resolve, but must not be represented as DNSSEC-authenticated.
-- **Bogus:** invalid DNSSEC signatures result in validation failure rather than being silently accepted.
+### Testbed Components
 
-These results have been observed at the resolver level. They must not be presented as successful ESP8266 end-to-end tests until the complete device-to-gateway workflow is verified.
+| Component | Purpose |
+|---|---|
+| Ubuntu on WSL2 | Linux environment for DNS infrastructure setup and testing |
+| Unbound | Recursive DNS resolver and DNSSEC validator |
+| NSD | Authoritative server for the local test zones |
+| `dig` | DNS query and response inspection |
+| `unbound-checkconf` | Unbound configuration validation |
 
-### TLS Integration and Debugging
+### Ubuntu Test Environment
 
-The gateway's DNS-over-TLS listener is configured on TCP port `853`. Independent OpenSSL tests successfully negotiate TLS 1.3 and validate the gateway certificate against the project's CA trust anchor and the hostname `gateway.lab`.
+The following commands illustrate the main verification steps used in the local testbed. Run them in the Ubuntu terminal, with the relevant services configured and running.
 
-During hardware integration, the ESP8266 establishes network connectivity and can reach the gateway's TCP endpoint, but its BearSSL client currently receives a TLS `protocol_version` alert. A separate issue prevents the device from resolving `gateway.lab` through its configured DNS server.
-
-The current investigation therefore separates three independent checks:
-
-1. Network reachability between the ESP8266 and gateway.
-2. TLS protocol compatibility and certificate/hostname verification.
-3. DNS query delivery and DNSSEC validation through the gateway.
-
-Certificate verification is not disabled to work around the handshake failure. End-to-end DNS-over-TLS remains in progress until the ESP8266 completes the handshake and successfully sends and receives DNS messages.
-
-### Next Milestones
-
-- [ ] Resolve the TLS protocol compatibility issue without weakening certificate verification.
-- [ ] Configure reliable gateway-hostname resolution for the ESP8266.
-- [ ] Send a real DNS query over the established TLS connection.
-- [ ] Verify secure, insecure and bogus DNSSEC cases from the device.
-- [ ] Record serial logs and resolver evidence for reproducible tests.
-- [ ] Measure DNS latency, TLS handshake time, memory consumption and failure handling.
-- [ ] Document limitations and the trust boundary between the IoT client and validating gateway.
-
-### Configured and implemented
-
-- PlatformIO project configured for the NodeMCU v2 / ESP8266.
-- ESP8266 firmware source integrated into the project.
-- Wi-Fi connectivity configured and verified in the current test environment.
-- Unbound validating resolver configured and validated using `unbound-checkconf`.
-- TLS service certificate and private key configured for the DNS gateway.
-- NSD authoritative DNS server configured with test zones and DNSSEC-signed records.
-- CA trust-anchor integration configured in the firmware through `src/ca_cert.h`.
-- `.gitignore` configured to exclude local secrets and PlatformIO build artifacts.
-
-### Gateway communication and validation
-
-- Gateway hostname resolution configured for the `gateway.lab` endpoint.
-- DNS-over-TLS (DoT) client integration configured in the ESP8266 firmware.
-- TLS certificate-chain and hostname verification incorporated into the secure connection workflow.
-- DNSSEC validation scenarios prepared for end-to-end testing against valid, unsigned, and DNSSEC-bogus records.
-- Security verification and reproducibility checks organized around the configured resolver and authoritative test zones.
-
-## DNSSEC Test Plan
-
-| Test case | Expected behavior | Interpretation |
-|---|---|---|
-| Valid signed data | Resolution succeeds when the chain validates | Authenticated DNS data is accepted |
-| Unsigned data | Resolution may succeed, depending on zone and resolver policy, but is not treated as DNSSEC-authenticated | Data is available without DNSSEC authentication |
-| DNSSEC-bogus data | Validation failure, typically `SERVFAIL` | Invalidly signed data is rejected |
-
-These are expected outcomes, not claims that every test has passed from the ESP8266. Mark a case as **PASS** only after capturing the actual response and supporting evidence.
-
-For each run, record the query name and type, test-zone category, expected outcome, actual response, date, environment, and pass/fail status.
-
-## Setup and Build
-
-### Prerequisites
-
-- Visual Studio Code
-- PlatformIO IDE extension
-- NodeMCU v2 / ESP8266 board and a USB data cable
-- A Wi-Fi network accessible to the ESP8266 and the gateway
-- A correctly configured gateway certificate and CA trust anchor
-
-### Configure local secrets
-
-If `src/main.cpp` requires `src/secrets.h`, create that file locally using the exact macro names expected by your firmware and your own Wi-Fi credentials. **Do not commit `src/secrets.h`.** Confirm that the CA certificate in `src/ca_cert.h` matches the authority that signed the gateway certificate.
-
-### Build, upload, and monitor
-
-Run these commands in the PlatformIO terminal from the project directory:
+Check the Unbound configuration:
 
 ```bash
-pio run
-pio run --target upload
-pio device monitor --baud 115200
+sudo unbound-checkconf
 ```
 
-If `pio` is not available on your PATH, use the PlatformIO CLI installed in your local PlatformIO Python environment. Close any existing serial monitor before uploading if the COM port is busy.
+Inspect the DNSSEC response for the secure zone:
 
-## Gateway Validation
+```bash
+dig @127.0.0.1 secure.lab.test A +dnssec
+```
 
-Before testing from the ESP8266:
+Inspect the unsigned zone:
 
-1. Run `unbound-checkconf` and resolve any configuration errors.
-2. Confirm that Unbound is listening on the expected interface and DoT port (`853`).
-3. Check that the gateway certificate contains the intended hostname in its Subject Alternative Name (SAN).
-4. Confirm that the client trusts the correct CA certificate.
-5. Test gateway reachability and hostname resolution from the client network.
-6. Test TLS from a separate client with certificate and hostname verification enabled.
-7. Query each DNSSEC test zone independently and record the actual resolver response.
-8. Repeat the tests from the ESP8266 and save the serial output.
+```bash
+dig @127.0.0.1 insecure.lab.test A +dnssec
+```
 
-Publish only sanitized configuration examples. Never commit `gw.key`, `ca.key`, zone-signing private keys, Wi-Fi passwords, tokens, or other credentials.
+Inspect the bogus zone using normal DNSSEC validation:
 
-## Security Considerations
+```bash
+dig @127.0.0.1 www.bogus.lab.test A +dnssec
+```
 
-- Do not disable TLS verification to work around certificate or hostname errors.
-- The gateway hostname must resolve to a reachable address and match a name in the certificate's SAN.
-- A trusted CA certificate and a valid hostname match are both required for authenticated TLS.
-- DNSSEC validation and TLS transport security provide different protections; one does not replace the other.
-- A CA certificate is not a private key, but its source and trust scope should be documented.
-- Private keys, passwords, and tokens must remain outside version control.
--
+Inspect the bogus-zone response with checking disabled for diagnostic purposes:
 
-## Testing and Validation
+```bash
+dig @127.0.0.1 www.bogus.lab.test A +dnssec +cdflag
+```
 
-## Results and Validation
+The `+cdflag` option sets the DNS Checking Disabled (CD) bit. It changes how the resolver handles DNSSEC checking for that query; it does not mean that the bogus record has passed validation.
 
-### 1. DNSSEC Resolver Tests — Passed Locally
+### Interpreting the Results
 
-The Unbound resolver was tested against three controlled DNSSEC scenarios.
-
-| Test case | Observed result | Status |
-|---|---|---|
-| Valid signed zone (`www.secure.lab.test`) | `NOERROR`, `AD` flag present | PASS |
-| Unsigned zone (`www.insecure.lab.test`) | `NOERROR`, no `AD` flag | PASS |
-| DNSSEC-bogus zone (`www.bogus.lab.test`) | `SERVFAIL`, DNSSEC validation failure | PASS |
-
-These results demonstrate the resolver's expected handling of valid, unsigned, and DNSSEC-bogus data. They were verified locally at the resolver level; they are not yet ESP8266 end-to-end results.
-
-### 2. Gateway TLS Tests — Passed Independently
-
-The gateway's DNS-over-TLS endpoint listens on TCP port `853`.
-
-- TLS 1.3 handshake: successful.
-- Certificate-chain verification using the project CA: successful.
-- Hostname verification for `gateway.lab`: successful.
-- TLS 1.2 handshake: rejected by the current gateway with a `protocol_version` alert.
-
-The TLS 1.3 verification was performed independently using OpenSSL from the WSL environment.
-
-### 3. ESP8266 Integration — In Progress
-
-| Check | Observed result |
+| Test case | Expected observation |
 |---|---|
-| Wi-Fi connectivity | PASS |
-| TCP reachability to gateway | PASS |
-| TLS handshake using ESP8266 BearSSL | FAIL — protocol-version alert |
-| Resolution of `gateway.lab` on the device | FAIL — investigation ongoing |
-| Complete DNS query over DoT from ESP8266 | PENDING |
+| Secure signed zone | Successful resolution with the `AD` flag when the validating resolver authenticates the response |
+| Insecure unsigned zone | Successful resolution without the `AD` flag |
+| Bogus signed zone | Validation failure, typically `SERVFAIL`, when DNSSEC checking is enabled |
+| Bogus zone with `+cdflag` | Diagnostic response with checking disabled; inspect the returned status and flags rather than treating it as a successful validation |
 
-The current integration issues are being investigated separately: TLS protocol compatibility and gateway-hostname resolution. Certificate verification remains enabled; it will not be disabled as a workaround.
+These tests provide a controlled environment for examining DNSSEC validation independently of the ESP8266 firmware and gateway transport. They complement the device-side Wi-Fi, TLS, and DNS-over-TLS testing.
 
-### 4. Performance Evaluation
+## Useful Commands
 
-Performance benchmarking has not yet been completed. Planned measurements include DNS query latency, TLS handshake duration, device memory usage, and end-to-end query success rate.
+Run the following commands in the Ubuntu WSL2 terminal.
 
-## Current Limitations
+### DNS Resolver Checks
 
-- The ESP8266 has not yet completed a successful TLS handshake with the gateway.
-- Gateway hostname resolution from the device remains unresolved.
-- DNSSEC outcomes have been verified at the resolver level, not through a completed ESP8266-to-gateway DoT transaction.
-- End-to-end performance measurements remain pending.
+```bash
+sudo unbound-checkconf
+```
 
-Detailed test procedures, observed results, DNSSEC test scenarios, and validation status are documented in [docs/testing.md](docs/testing.md).
+Check whether Unbound is listening on port 53:
 
+```bash
+sudo ss -lntup | grep ':53'
+```
 
-## Future Work
+Check whether NSD is listening on its configured test port:
 
-- **Gateway Infrastructure:** TLS-enabled Unbound gateway configured with service certificates and private keys.
-- **DNS-over-TLS (DoT):** DoT client integration established between the ESP8266 firmware and the gateway, with final connectivity verification and testing.
-- **Certificate Trust:** CA trust-anchor integration configured in the ESP8266 firmware to support secure gateway authentication.
-- **DNSSEC Validation:** Complete end-to-end verification of valid, unsigned, and DNSSEC-bogus DNS responses.
-- **Security Verification:** Consolidate serial logs, resolver-side evidence, and reproducible test outputs to demonstrate secure DNS resolution.
-- **Performance Benchmarking:** Measure DNS query latency, TLS handshake time, memory consumption, and connection failure handling.
-- **Reproducibility and Deployment:** Publish sanitized configuration files, test scripts, setup instructions, and a reproducible demonstration guide.
-- **Project Demonstration:** Publish the team introduction video and link the final system demonstration and evaluation results.
+```bash
+sudo ss -lntup | grep ':5300'
+```
 
-## Team and Submission Materials
+### DNSSEC Test Queries
 
-- **Team code:** TC200
-- **Hackathon:** AIORI-3
-- **Problem statement:** PS-004
-- **Firmware entry point:** `src/main.cpp`
-- **PlatformIO configuration:** `platformio.ini`
-- **Project presentation:** `A3-PS004-TC200 Authenticated Gateway-Assisted DNSSEC for IoT ClientS.pdf`
+```bash
+dig @127.0.0.1 secure.lab.test A +dnssec
+dig @127.0.0.1 insecure.lab.test A +dnssec
+dig @127.0.0.1 www.bogus.lab.test A +dnssec
+dig @127.0.0.1 www.bogus.lab.test A +dnssec +cdflag
+```
+
+### Inspect Service Status
+
+```bash
+sudo systemctl status unbound
+sudo systemctl status nsd
+```
+
+If a service fails to start, inspect its logs:
+
+```bash
+sudo journalctl -u unbound --no-pager -n 50
+sudo journalctl -u nsd --no-pager -n 50
+```
+
+**Note:** Service names, ports, and zone names must match the local configuration. These commands are for diagnosis and verification; they do not automatically configure the DNS services.
+
+## DNSSEC Test Results
+
+The DNSSEC testbed was used to evaluate the behaviour of the Unbound validating resolver against three controlled DNS zones: secure, insecure, and bogus. These tests were performed in the Ubuntu WSL2 environment.
+
+### Test Cases
+
+| Test Case | Query | Observed Result | Interpretation |
+|---|---|---|---|
+| Secure zone | `secure.lab.test` | Validated DNS response with the `AD` flag | The resolver successfully authenticates the signed DNS data |
+| Insecure zone | `insecure.lab.test` | Successful resolution without DNSSEC authentication | The unsigned zone resolves without an authenticated-data indication |
+| Bogus zone | `www.bogus.lab.test` | DNSSEC validation failure; `SERVFAIL` under normal validation | The resolver rejects the response because DNSSEC validation fails |
+| Bogus zone with checking disabled | `www.bogus.lab.test` with `+cdflag` | Response inspected with DNSSEC checking disabled | Allows diagnostic inspection of data that would otherwise fail validation |
+
+### Reproducing the Tests
+
+Run the following commands in the Ubuntu WSL2 terminal, assuming Unbound is listening on `127.0.0.1:53` and the test zones are configured.
+
+**1. Secure signed zone**
+
+```bash
+dig @127.0.0.1 secure.lab.test A +dnssec
+```
+
+Inspect the response flags for `AD` (Authenticated Data), which indicates that the resolver authenticated the DNS data.
+
+**2. Insecure unsigned zone**
+
+```bash
+dig @127.0.0.1 insecure.lab.test A +dnssec
+```
+
+The query should resolve successfully without the `AD` flag for the unsigned zone.
+
+**3. Bogus signed zone**
+
+```bash
+dig @127.0.0.1 www.bogus.lab.test A +dnssec
+```
+
+With DNSSEC checking enabled, the resolver should return `SERVFAIL` when validation fails.
+
+**4. Bogus zone with checking disabled**
+
+```bash
+dig @127.0.0.1 www.bogus.lab.test A +dnssec +cdflag
+```
+
+The `+cdflag` option sets the Checking Disabled (CD) bit. This permits diagnostic inspection of a response without normal DNSSEC checking by the validating resolver. It does **not** mean that the bogus DNS data has passed validation.
+
+### Key Findings
+
+- The secure-zone test demonstrates successful DNSSEC authentication through the `AD` flag.
+- The insecure-zone test demonstrates successful resolution without DNSSEC authentication.
+- The bogus-zone test demonstrates the resolver's response to DNSSEC validation failure.
+- The checking-disabled query provides a way to inspect the bogus-zone response for debugging.
+- These resolver-side tests establish the DNSSEC test cases used to evaluate the gateway-assisted IoT architecture.
+
+## DNSGuard Dashboard
+
+DNSGuard is the web-based dashboard developed for the gateway-assisted DNSSEC validation system. It provides a user-facing interface for understanding the DNS security workflow alongside the Ubuntu-based DNS infrastructure and ESP8266 IoT client.
+
+### Key Features
+
+- **DNS Security Monitoring:** Provides a dashboard interface for observing the system's DNS security workflow.
+- **DNSSEC Test Cases:** Supports the demonstration of secure, insecure, and bogus DNS responses.
+- **Gateway–IoT Integration:** Complements the ESP8266 client's secure communication with the gateway.
+- **Modular Architecture:** Separates the React frontend from the Node.js backend.
+- **Integrated Repository:** Keeps the dashboard, backend, and ESP8266 firmware in one project repository.
+
+### Dashboard Architecture
+
+| Component | Technology | Purpose |
+|---|---|---|
+| Frontend | React, Vite | Renders the DNSGuard user interface |
+| Backend | Node.js | Provides the server-side application component |
+| DNS infrastructure | Unbound and NSD | Supports recursive resolution and DNSSEC test cases |
+| IoT client | ESP8266, PlatformIO | Implements the device-side gateway communication workflow |
+
+### Running the Dashboard Locally
+
+**Prerequisites:** Install Node.js and npm. Run these commands from the project root in separate terminals.
+
+#### 1. Start the backend
+
+```bash
+cd DNSGuard/backend
+npm install
+node server.js
+```
+
+Keep this terminal running. The backend address and port depend on the server configuration.
+
+#### 2. Start the frontend
+
+Open a second terminal:
+
+```bash
+cd DNSGuard
+npm install
+npm run dev
+```
+
+Vite will display the local development URL in the terminal. Open that URL in your browser to access DNSGuard.
+
+### Integration Context
+
+DNSGuard is part of the wider project, which combines a local DNSSEC testbed, gateway-assisted DNS validation, and an ESP8266 client using DNS-over-TLS (DoT). The dashboard provides the web interface for this system; DNSSEC validation itself is performed by the configured DNS infrastructure.
+
+## ESP8266 Setup and Testing
+
+The ESP8266 firmware forms the IoT client component of the gateway-assisted DNSSEC validation system. It connects to the configured Wi-Fi network, establishes a secure TLS connection with the gateway, and performs DNS-over-TLS (DoT) queries as part of the DNS security workflow.
+
+### Hardware and Software
+
+| Component | Purpose |
+|---|---|
+| ESP8266 development board | IoT client platform |
+| PlatformIO | Firmware development, building, and uploading |
+| C++ | Firmware implementation |
+| TLS certificate | Used to verify the gateway's identity |
+| DNS-over-TLS (DoT) | Provides encrypted DNS communication between the client and gateway |
+
+### Firmware Structure
+
+```text
+firmware/
+├── include/
+│   ├── ca_cert.h
+│   ├── secrets.example.h
+│   └── README
+├── src/
+│   └── main.cpp
+├── lib/
+├── test/
+├── platformio.ini
+└── ca.crt
+```
+
+- `firmware/src/main.cpp` contains the ESP8266 firmware.
+- `firmware/include/ca_cert.h` contains the certificate trust configuration used by the firmware.
+- `firmware/include/secrets.example.h` provides an example configuration for required credentials.
+- `firmware/platformio.ini` defines the PlatformIO build environment.
+- `firmware/ca.crt` contains the CA certificate file used by the project.
+
+**Security note:** Configure your local Wi-Fi credentials and other secrets in the appropriate local configuration file. Never commit real passwords, private keys, or other credentials to the repository.
+
+### Configure the Firmware
+
+1. Open the repository in VS Code with the PlatformIO extension installed.
+2. Review `firmware/platformio.ini` to confirm the board and build environment.
+3. Configure the local Wi-Fi credentials and gateway hostname/address.
+4. Ensure that the CA certificate used by the ESP8266 matches the certificate chain presented by the gateway.
+5. Verify that the gateway hostname, certificate identity, and TLS configuration are consistent.
+
+### Build, Upload, and Monitor
+
+Run these commands from the project root if PlatformIO Core is installed:
+
+**Build the firmware**
+
+```bash
+pio run -d firmware
+```
+
+**Upload the firmware**
+
+```bash
+pio run -d firmware -t upload
+```
+
+**Open the serial monitor**
+
+```bash
+pio device monitor -d firmware
+```
+
+If the `pio` command is unavailable, use the PlatformIO controls in VS Code to build, upload, and open the serial monitor.
+
+### Integration Tests
+
+The ESP8266 integration workflow covers the following checks:
+
+- **Wi-Fi connectivity:** The device connects to the configured local network.
+- **Gateway connectivity:** The client reaches the configured gateway endpoint.
+- **TLS certificate verification:** The client verifies the gateway certificate before using the secure connection.
+- **DNS-over-TLS:** The client sends a DNS query over the TLS connection and processes the response.
+- **DNSSEC test scenarios:** The broader system uses secure, insecure, and bogus DNS zones to examine DNSSEC validation behaviour.
+
+The Ubuntu DNSSEC testbed and the ESP8266 firmware provide complementary evidence: the former tests resolver validation behaviour, while the latter tests secure IoT-to-gateway communication.
+
+## Security Considerations and Limitations
+
+### Security Considerations
+
+- **DNSSEC Validation:** DNSSEC enables the validating resolver to authenticate signed DNS data and detect invalid signatures. The project tests secure, insecure, and bogus DNS zones to examine different validation outcomes.
+- **DNS-over-TLS (DoT):** TLS encrypts DNS traffic between the ESP8266 client and the configured gateway, helping protect queries against passive observation and in-transit modification.
+- **Certificate Verification:** The ESP8266 must verify the gateway's certificate against its configured trust anchor and check the expected server identity. Encryption without correct certificate verification does not establish that the client is communicating with the intended gateway.
+- **Credential Protection:** Wi-Fi credentials and other sensitive configuration values must remain local and must not be committed to the public repository.
+- **Separation of Responsibilities:** TLS protects the client-to-gateway communication channel, while DNSSEC validation establishes the authenticity of DNS data. These mechanisms address different security requirements and complement one another.
+
+### Limitations
+
+- **Gateway Dependency:** The ESP8266 relies on the configured gateway being reachable and correctly configured to provide the intended DNS service.
+- **Trust Configuration:** Secure operation depends on the correct CA certificate, gateway hostname, and TLS configuration being maintained.
+- **Insecure DNS Zones:** An unsigned zone does not provide DNSSEC authentication. Successful resolution of such a zone must not be interpreted as proof of authenticated DNS data.
+- **Test Environment:** The DNSSEC test zones are controlled test cases. Results from these zones do not, by themselves, establish performance or security across all public DNS environments.
+- **Hardware and Network Constraints:** ESP8266 memory, processing capacity, network availability, and TLS configuration can affect connection reliability and DNS query performance.
+
+### Future Improvements
+
+- Expand testing across additional DNSSEC failure scenarios and DNS response types.
+- Add automated integration tests covering resolver validation, gateway TLS, and ESP8266 DoT queries.
+- Improve dashboard visibility into DNS response codes, validation outcomes, and connection errors.
+- Evaluate query latency, reliability, and resource consumption on the ESP8266.
+- Strengthen deployment configuration, credential handling, and recovery from gateway or network failures.
+
 
 ## Documentation
 
