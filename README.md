@@ -531,6 +531,92 @@ The Ubuntu DNSSEC testbed and the ESP8266 firmware provide complementary evidenc
 - Evaluate query latency, reliability, and resource consumption on the ESP8266.
 - Strengthen deployment configuration, credential handling, and recovery from gateway or network failures.
 
+## Troubleshooting
+
+This section covers common issues that may arise while running the Ubuntu DNSSEC testbed, DNSGuard dashboard, and ESP8266 firmware.
+
+### 1. DNS Port Conflicts
+
+If Unbound or NSD fails to start because a port is already in use, inspect the listening processes:
+
+```bash
+sudo ss -lntup | grep -E ':53|:5300'
+```
+
+Check the configuration and ensure that the services use the intended addresses and ports. In the testbed configuration, Unbound uses port `53` and NSD uses port `5300`.
+
+### 2. Unbound Configuration Errors
+
+Validate the Unbound configuration before restarting the service:
+
+```bash
+sudo unbound-checkconf
+```
+
+If validation fails, review the configuration file and correct the reported errors before starting Unbound.
+
+### 3. DNSSEC Validation Failures
+
+Compare the secure, insecure, and bogus test cases:
+
+```bash
+dig @127.0.0.1 secure.lab.test A +dnssec
+dig @127.0.0.1 insecure.lab.test A +dnssec
+dig @127.0.0.1 www.bogus.lab.test A +dnssec
+```
+
+Inspect the response status and flags. A secure response may contain the `AD` flag, while a bogus response should fail normal DNSSEC validation. An unsigned zone can resolve without DNSSEC authentication.
+
+For diagnostic inspection of the bogus zone, use:
+
+```bash
+dig @127.0.0.1 www.bogus.lab.test A +dnssec +cdflag
+```
+
+### 4. TLS Certificate or Hostname Errors
+
+If the ESP8266 cannot establish a verified TLS connection:
+
+- Confirm that the gateway is reachable.
+- Check that the gateway hostname matches the certificate identity.
+- Verify that the CA certificate configured in the firmware is correct and current.
+- Confirm that the gateway's TLS configuration is compatible with the ESP8266 TLS client.
+- Check the serial-monitor output for connection and certificate-verification errors.
+
+Do not disable certificate verification as a workaround in the final implementation.
+
+### 5. ESP8266 Wi-Fi or Gateway Connectivity
+
+If the device cannot connect to the gateway:
+
+- Verify the configured Wi-Fi credentials.
+- Confirm that the ESP8266 and gateway have network connectivity.
+- Check the gateway address and hostname-resolution configuration.
+- Inspect the serial-monitor output for connection errors and retry behaviour.
+
+### 6. DNSGuard Startup Issues
+
+If the dashboard does not start, confirm that Node.js and npm are installed and that dependencies are available:
+
+```bash
+node --version
+npm --version
+```
+
+Run `npm install` in the relevant frontend or backend directory. Check the terminal output and the `scripts` defined in the corresponding `package.json` file before starting either component.
+
+## Future Work
+
+Potential improvements to the system include:
+
+- **Expanded DNSSEC Testing:** Add further malformed-signature, expired-signature, and DNSSEC failure scenarios.
+- **Automated Integration Testing:** Automate the verification of DNSSEC outcomes and the ESP8266-to-gateway DoT workflow.
+- **Performance Evaluation:** Measure DNS query latency, TLS connection overhead, reliability, and ESP8266 resource usage.
+- **Dashboard Enhancements:** Improve visibility into DNS response codes, validation outcomes, and connection errors.
+- **Deployment Hardening:** Improve configuration management, credential protection, and recovery from gateway or network failures.
+
+These improvements can extend the current implementation and strengthen its suitability for broader testing and deployment.
+
 
 ## Documentation
 
