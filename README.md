@@ -182,7 +182,7 @@ A3-PS004-TC200/
 - **`README.md`** — Documents the project, its architecture, setup, and testing.
 
 
-```
+
 
 `src/secrets.h` may be required locally, depending on the firmware configuration, but it is intentionally excluded from Git. Do not add credentials or private keys to this repository.
 
