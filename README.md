@@ -2,6 +2,20 @@
 
 **AIORI-3 Hackathon · Team TC200 · Problem Statement PS-004**
 
+---
+
+## Prototype Demonstration Video Link
+
+[Watch the DNSGuard Prototype Demonstration](https://youtu.be/EgiiK3YSu5E?si=eC64jGLegMPlwa0c)
+
+---
+
+## Live Prototype Link
+
+[Open the DNSGuard Dashboard](https://dns-guard-pink.vercel.app/)
+
+---
+
 >## Project Overview
 
 **IoT DNSSEC** is a gateway-assisted secure DNS resolution framework developed as part of AIORI-3 PS004. The project aims to improve DNS security for ESP8266-based IoT devices by combining DNS-over-TLS (DoT), DNSSEC validation, and a dedicated web-based monitoring dashboard.
@@ -26,11 +40,6 @@ DNSGuard is a DNSSEC monitoring and testing dashboard that connects to a live Un
 
 **Note:** DNSGuard is currently configured and tested locally on my PC using Ubuntu on WSL2, with the ESP device connected. The dashboard and backend may not always be accessible, as they depend on my local environment and active Cloudflare Tunnel session.
 
-## Team Introduction Video
-
-**Problem Statement:** PS-004 — Authenticated Gateway-Assisted DNSSEC for IoT Clients
-
-**Video:** [Watch our AIORI-3 team introduction](https://youtu.be/wjA9g5x5s4w?si=8qdF-Wcldh8SVMxA)
 
 ---
 
