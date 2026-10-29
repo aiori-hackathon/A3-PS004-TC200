@@ -36,8 +36,6 @@ DNSGuard is a DNSSEC monitoring and testing dashboard that connects to a live Un
 
 ## Table of Contents
 
--## Table of Contents
-
 - [Overview](#overview)
 - [Problem Statement](#problem-statement)
 - [Objectives](#objectives)
