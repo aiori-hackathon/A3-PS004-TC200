@@ -6,7 +6,7 @@
 
 ## Prototype Demonstration Video Link
 
-[Watch the DNSGuard Prototype Demonstration](https://youtu.be/EgiiK3YSu5E?si=eC64jGLegMPlwa0c)
+[Watch the Prototype Demonstration](https://youtu.be/EgiiK3YSu5E?si=eC64jGLegMPlwa0c)
 
 ---
 
