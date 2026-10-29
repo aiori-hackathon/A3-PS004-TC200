@@ -24,6 +24,8 @@ Live Demo: https://dns-guard-pink.vercel.app/
 
 DNSGuard is a DNSSEC monitoring and testing dashboard that connects to a live Unbound resolver for DNS security validation.
 
+**Note:** DNSGuard is currently configured and tested locally on my PC using Ubuntu on WSL2, with the ESP device connected. The dashboard and backend may not always be accessible, as they depend on my local environment and active Cloudflare Tunnel session.
+
 ## Team Introduction Video
 
 **Problem Statement:** PS-004 — Authenticated Gateway-Assisted DNSSEC for IoT Clients
