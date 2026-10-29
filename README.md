@@ -232,6 +232,18 @@ The testbed was designed to examine three DNSSEC outcomes:
 - **Insecure:** An unsigned DNS zone resolves without DNSSEC authentication.
 - **Bogus:** A DNSSEC validation failure is reproduced using deliberately invalid signed data. The resolver's validation behaviour is examined using normal and checking-disabled queries where appropriate.
 
+### Rogue Gateway Simulation
+
+DNSGuard includes a **Rogue Gateway Simulation** module that demonstrates how a gateway can be flagged when its network identity differs from a trusted baseline. The simulation compares the gateway's IP and MAC addresses against predefined trusted values and identifies mismatches.
+
+- **Trusted Gateway:** Confirms a match with the trusted baseline.
+- **MAC Address Mismatch:** Simulates a gateway with an unexpected MAC address.
+- **IP Address Mismatch:** Simulates a gateway with an unexpected IP address.
+
+The dashboard displays the comparison results and reports either `GATEWAY MATCH` or `ROGUE GATEWAY SUSPECTED`.
+
+**Note:** This is a controlled, backend-driven simulation using predefined values. It does not detect live rogue gateways or inspect the actual network. The feature is intended to demonstrate the gateway verification logic and its potential role in network security.
+
 ### Testbed Components
 
 | Component | Purpose |
